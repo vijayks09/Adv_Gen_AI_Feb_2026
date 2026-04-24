@@ -1,0 +1,16 @@
+Role: Data Scientist
+
+Required Skills:
+- Python
+- SQL
+- Machine Learning (scikit-learn, TensorFlow, or PyTorch)
+- Data Visualization (Tableau, PowerBI, or Matplotlib)
+
+Experience:
+- Minimum 3 years of experience in data science, machine learning, or predictive modeling.
+
+Responsibilities:
+- Build machine learning models to solve business problems.
+- Analyze large datasets using SQL and Python.
+- Deploy models to production and monitor their performance.
+- Collaborate with cross-functional teams to deliver data-driven insights.

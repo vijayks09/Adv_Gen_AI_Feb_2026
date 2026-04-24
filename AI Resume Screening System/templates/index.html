@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Resume Screener | LangChain + Gemini</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-icon">&#9733;</span>
+      <span>AI Resume Screener</span>
+    </div>
+    <div class="header-badges">
+      <span class="badge badge-blue">LangChain LCEL</span>
+      <span class="badge badge-purple">Gemini 2.0</span>
+      <span class="badge badge-green">LangSmith</span>
+    </div>
+  </div>
+</header>
+
+<!-- ── HERO ───────────────────────────────────────────────────── -->
+<section class="hero">
+  <h1 class="hero-title">AI-Powered Resume Screening</h1>
+  <p class="hero-sub">
+    Paste a resume below, select or enter a Job Description, and let the
+    LangChain pipeline <strong>extract</strong>, <strong>match</strong>,
+    <strong>score</strong>, and <strong>explain</strong> the fit in seconds.
+  </p>
+
+  <!-- Pipeline Flow -->
+  <div class="pipeline-flow">
+    <div class="flow-step">
+      <div class="flow-icon">&#128196;</div>
+      <div class="flow-label">Resume Input</div>
+    </div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-step">
+      <div class="flow-icon">&#128270;</div>
+      <div class="flow-label">Skill Extraction</div>
+    </div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-step">
+      <div class="flow-icon">&#9878;</div>
+      <div class="flow-label">JD Matching</div>
+    </div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-step">
+      <div class="flow-icon">&#127919;</div>
+      <div class="flow-label">Scoring</div>
+    </div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-step">
+      <div class="flow-icon">&#128203;</div>
+      <div class="flow-label">Explanation</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── QUICK LOAD BUTTONS ─────────────────────────────────────── -->
+<section class="quick-section">
+  <div class="container">
+    <p class="section-label">Quick Load Sample Resumes:</p>
+    <div class="quick-btns">
+      <button class="quick-btn btn-strong" onclick="loadSample('strong')">
+        &#9650; Strong Candidate — Alice Johnson
+      </button>
+      <button class="quick-btn btn-avg" onclick="loadSample('average')">
+        &#9644; Average Candidate — Bob Smith
+      </button>
+      <button class="quick-btn btn-weak" onclick="loadSample('weak')">
+        &#9660; Weak Candidate — Charlie Davis
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ── MAIN FORM ──────────────────────────────────────────────── -->
+<section class="form-section">
+  <div class="container">
+    <div class="form-grid">
+
+      <!-- Job Description -->
+      <div class="form-card">
+        <div class="card-header">
+          <span class="card-icon">&#128188;</span>
+          <h2>Job Description</h2>
+        </div>
+        <textarea id="jd-input" class="textarea" rows="18"
+          placeholder="Paste the Job Description here...">{{ default_jd }}</textarea>
+      </div>
+
+      <!-- Resume -->
+      <div class="form-card">
+        <div class="card-header">
+          <span class="card-icon">&#128196;</span>
+          <h2>Candidate Resume</h2>
+        </div>
+        <textarea id="resume-input" class="textarea" rows="18"
+          placeholder="Paste the candidate's resume here..."></textarea>
+      </div>
+
+    </div>
+
+    <!-- Analyze Buttons -->
+    <div class="analyze-row">
+      <button id="analyze-btn" class="analyze-btn" onclick="analyzeResume(false)">
+        <span id="btn-text">Run AI Screening Pipeline</span>
+        <span id="btn-spinner" class="spinner hidden"></span>
+      </button>
+      <button id="demo-btn" class="demo-btn" onclick="analyzeResume(true)">
+        &#9654; Demo Mode (Instant)
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ── RESULTS SECTION ────────────────────────────────────────── -->
+<section id="results-section" class="results-section hidden">
+  <div class="container">
+    <h2 class="results-title">Pipeline Results</h2>
+
+    <!-- Score Card -->
+    <div class="score-card" id="score-card">
+      <div class="score-left">
+        <div class="score-circle" id="score-circle">
+          <svg viewBox="0 0 120 120" class="score-svg">
+            <circle cx="60" cy="60" r="52" class="score-track"/>
+            <circle cx="60" cy="60" r="52" class="score-fill" id="score-arc"/>
+          </svg>
+          <div class="score-number" id="score-number">0</div>
+        </div>
+        <div class="score-label" id="score-label">Evaluating...</div>
+      </div>
+      <div class="score-right">
+        <h3>AI Explanation</h3>
+        <p id="explanation-text" class="explanation-text"></p>
+      </div>
+    </div>
+
+    <!-- Extracted Data -->
+    <div class="extracted-grid">
+      <div class="extracted-card">
+        <div class="extracted-header">&#127919; Skills Extracted</div>
+        <div id="skills-list" class="tag-list"></div>
+      </div>
+      <div class="extracted-card">
+        <div class="extracted-header">&#128205; Experience</div>
+        <p id="experience-text" class="experience-text"></p>
+      </div>
+      <div class="extracted-card">
+        <div class="extracted-header">&#128295; Tools & Technologies</div>
+        <div id="tools-list" class="tag-list"></div>
+      </div>
+    </div>
+
+    <!-- Pipeline Step Log -->
+    <div class="pipeline-log">
+      <div class="log-header">Pipeline Execution Log</div>
+      <div id="log-content" class="log-content"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── ERROR TOAST ────────────────────────────────────────────── -->
+<div id="error-toast" class="error-toast hidden">
+  <span id="error-msg"></span>
+  <button onclick="document.getElementById('error-toast').classList.add('hidden')">&#10005;</button>
+</div>
+
+<!-- ── SAMPLE DATA (passed from Flask) ───────────────────────── -->
+<script>
+  const SAMPLES = {
+    strong: {{ default_resumes.strong | tojson }},
+    average: {{ default_resumes.average | tojson }},
+    weak: {{ default_resumes.weak | tojson }},
+  };
+
+  function loadSample(type) {
+    document.getElementById('resume-input').value = SAMPLES[type];
+    document.getElementById('results-section').classList.add('hidden');
+    document.getElementById('resume-input').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function log(msg, type = 'info') {
+    const el = document.getElementById('log-content');
+    const ts = new Date().toLocaleTimeString();
+    const cls = type === 'success' ? 'log-success' : type === 'error' ? 'log-error' : 'log-info';
+    el.innerHTML += `<div class="log-line ${cls}"><span class="log-ts">[${ts}]</span> ${msg}</div>`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  async function analyzeResume(demoMode = false) {
+    const resume = document.getElementById('resume-input').value.trim();
+    const jd = document.getElementById('jd-input').value.trim();
+
+    if (!resume) {
+      showError('Please paste a resume before running the pipeline.');
+      return;
+    }
+
+    // UI: Loading state
+    const btn = document.getElementById('analyze-btn');
+    document.getElementById('btn-text').textContent = demoMode ? 'Loading Demo...' : 'Running Pipeline...';
+    document.getElementById('btn-spinner').classList.remove('hidden');
+    btn.disabled = true;
+    document.getElementById('demo-btn').disabled = true;
+
+    // Reset results
+    document.getElementById('results-section').classList.remove('hidden');
+    document.getElementById('log-content').innerHTML = '';
+    document.getElementById('skills-list').innerHTML = '';
+    document.getElementById('tools-list').innerHTML = '';
+    document.getElementById('explanation-text').textContent = '';
+    document.getElementById('experience-text').textContent = '';
+    setScore(0, 'Analyzing...', 'neutral');
+
+    if (demoMode) {
+      log('DEMO MODE — loading pre-computed Gemini pipeline results...');
+    } else {
+      log('Pipeline started — sending resume to Gemini 2.0 Flash...');
+      log('Step 1: Invoking Extraction Chain (PromptTemplate | LLM.with_structured_output)...');
+    }
+
+    document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+
+    try {
+      const res = await fetch('/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resume, jd, demo: demoMode }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        log('ERROR: ' + (data.error || 'Unknown error'), 'error');
+        showError(data.error || 'Pipeline failed.');
+        resetBtn();
+        return;
+      }
+
+      // Step 1 result
+      if (!demoMode) {
+        log('Step 1 COMPLETE: Skills, experience, and tools extracted.', 'success');
+        log('Step 2: Invoking Scoring Chain (PromptTemplate | LLM.with_structured_output)...');
+      }
+      log('Step 2 COMPLETE: Score and explanation generated.', 'success');
+      log(`Final Score: ${data.score}/100 — ${data.label}`, 'success');
+      if (data.quota_note) log('NOTE: ' + data.quota_note, 'info');
+      if (data.mode) log(`Mode: ${data.mode === 'live' ? 'Live Gemini API' : 'Demo (pre-computed)'}`, 'info');
+
+      // Render results
+      renderResults(data);
+
+    } catch (err) {
+      log('Network error: ' + err.message, 'error');
+      showError('Network error. Is the Flask server running?');
+    }
+
+    resetBtn();
+  }
+
+  function resetBtn() {
+    document.getElementById('btn-text').textContent = 'Run AI Screening Pipeline';
+    document.getElementById('btn-spinner').classList.add('hidden');
+    document.getElementById('analyze-btn').disabled = false;
+    document.getElementById('demo-btn').disabled = false;
+  }
+
+  function renderResults(data) {
+    // Score circle
+    setScore(data.score, data.label, data.color);
+
+    // Explanation
+    document.getElementById('explanation-text').textContent = data.explanation;
+
+    // Skills tags
+    const skillsList = document.getElementById('skills-list');
+    data.extracted.skills.forEach(s => {
+      const tag = document.createElement('span');
+      tag.className = 'tag tag-skill';
+      tag.textContent = s;
+      skillsList.appendChild(tag);
+    });
+
+    // Tools tags
+    const toolsList = document.getElementById('tools-list');
+    data.extracted.tools.forEach(t => {
+      const tag = document.createElement('span');
+      tag.className = 'tag tag-tool';
+      tag.textContent = t;
+      toolsList.appendChild(tag);
+    });
+
+    // Experience
+    document.getElementById('experience-text').textContent = data.extracted.experience;
+  }
+
+  function setScore(score, label, color) {
+    const numEl = document.getElementById('score-number');
+    const labelEl = document.getElementById('score-label');
+    const arc = document.getElementById('score-arc');
+    const card = document.getElementById('score-card');
+
+    // Animate number
+    let current = 0;
+    const target = parseInt(score);
+    const step = Math.max(1, Math.floor(target / 40));
+    const interval = setInterval(() => {
+      current = Math.min(current + step, target);
+      numEl.textContent = current;
+      if (current >= target) clearInterval(interval);
+    }, 30);
+
+    labelEl.textContent = label;
+
+    // Arc stroke
+    const circumference = 2 * Math.PI * 52;
+    const dash = (score / 100) * circumference;
+    arc.style.strokeDasharray = `${dash} ${circumference}`;
+
+    // Color
+    card.className = 'score-card score-' + (color || 'neutral');
+    arc.className = 'score-fill fill-' + (color || 'neutral');
+    labelEl.className = 'score-label label-' + (color || 'neutral');
+  }
+
+  function showError(msg) {
+    document.getElementById('error-msg').textContent = msg;
+    document.getElementById('error-toast').classList.remove('hidden');
+    setTimeout(() => document.getElementById('error-toast').classList.add('hidden'), 7000);
+  }
+
+  // resetBtn now defined above
+</script>
+
+</body>
+</html>

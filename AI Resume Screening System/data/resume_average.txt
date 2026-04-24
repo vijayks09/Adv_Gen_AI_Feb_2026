@@ -1,0 +1,17 @@
+Name: Bob Smith
+Title: Data Analyst
+
+Experience:
+Data Analyst at DataInc (2 years)
+- Analyzed business data using Python (Pandas, NumPy) and SQL.
+- Built basic classification models using scikit-learn to understand customer segments.
+- Presented findings to the marketing team using PowerBI dashboards.
+
+Education:
+BS in Statistics
+
+Skills:
+Data Analysis, Basic Machine Learning, Statistical Analysis, Reporting.
+
+Tools & Languages:
+Python, SQL, scikit-learn, PowerBI, Excel.

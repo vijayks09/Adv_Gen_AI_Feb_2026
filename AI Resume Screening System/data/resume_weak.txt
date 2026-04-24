@@ -1,0 +1,17 @@
+Name: Charlie Davis
+Title: Junior Software Engineer
+
+Experience:
+Software Engineer at WebSolutions (1 year)
+- Developed RESTful APIs using Java and Spring Boot.
+- Designed database schemas and wrote queries in MySQL.
+- Collaborated with frontend developers to integrate APIs.
+
+Education:
+BS in Software Engineering
+
+Skills:
+Backend Development, API Design, Database Management.
+
+Tools & Languages:
+Java, Spring Boot, MySQL, Git, Postman.

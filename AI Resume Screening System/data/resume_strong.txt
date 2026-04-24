@@ -1,0 +1,18 @@
+Name: Alice Johnson
+Title: Senior Data Scientist
+
+Experience:
+Data Scientist at TechCorp (4 years)
+- Developed and deployed machine learning models for customer churn prediction using Python and PyTorch.
+- Analyzed large datasets with SQL to identify trends and improve business strategies.
+- Created interactive dashboards using Tableau to visualize model performance for stakeholders.
+- Deployed models using Docker and Kubernetes, monitoring them via MLflow.
+
+Education:
+MS in Computer Science
+
+Skills:
+Machine Learning, Deep Learning, Predictive Modeling, Data Visualization, Model Deployment.
+
+Tools & Languages:
+Python, SQL, PyTorch, scikit-learn, Tableau, Docker, Kubernetes, MLflow, Git.
